@@ -40,3 +40,31 @@
 - **Qué parte del output se incorporó, modificó o descartó, y por qué:** Se estructuró el código de 1-NN con un ciclo anidado que evalúa el punto de prueba contra el tamaño total de `X_train` (`len(X_train)`), garantizando que busca al vecino más cercano real y no un promedio.
 - **¿El output fue técnicamente correcto? Si no, qué error tenía y cómo se detectó?** Sí, corrigió una confusión conceptual importante antes de implementar el algoritmo.
 
+## Registro 07: Advertencias de convergencia (ConvergenceWarning) en el MLP
+- **Fecha y herramienta:** 15 de noviembre de 2026, Claude.
+- **Prompt exacto enviado:** "de esta forma tiene que correr?" (con texto pegado de la celda de evaluación de SVM y MLP).
+- **Resumen del output recibido:** La IA indicó que los resultados de SVM y MLP eran razonables (Iris arriba de 0.95 y el sintético cerca de 0.75). Explicó que los `ConvergenceWarning` son avisos y no errores: con las 200 iteraciones por defecto el MLP no siempre converge, y se pueden quitar subiendo `max_iter` en el ajuste de parámetros.
+- **Qué parte del output se incorporó, modificó o descartó, y por qué:** Se incorporó la explicación y se silenció el aviso con `warnings.filterwarnings("ignore")` en la tabla comparativa. En la sección de ajuste de parámetros se usó `max_iter=2000`. 
+- **¿El output fue técnicamente correcto? Si no, qué error tenía y cómo se detectó?** Sí. La explicación coincide con el mensaje de scikit-learn ("Maximum iterations (200) reached and the optimization hasn't converged yet"). Silenciar el aviso no cambia los resultados.
+
+## Registro 08: Resultados de la conclusión que no coincidían con la tabla final
+- **Fecha y herramienta:** 15 de noviembre de 2026, Claude.
+- **Prompt exacto enviado:** "Analiza los resultados y determina si estos son correctos para lo determinado" (con texto pegado de la tabla final de los seis modelos) y después "Podrias definir que debemos ajustar".
+- **Resumen del output recibido:** La IA confirmó que la tabla era correcta (misma partición y mismos folds para todos), pero señaló que la Conclusión del notebook usaba números de corridas anteriores sin semilla fija (74.33%, 59.33%) y afirmaba que K-NN era "el más robusto" en el sintético, cuando SVM (0.75) y MLP (0.7533) lo igualaban o superaban (0.7233). Propuso reescribirla con los valores de la tabla final y tratar a K-NN, SVM y MLP como un empate práctico, dado que la diferencia es de 2 a 3 puntos con 300 datos.
+- **Qué parte del output se incorporó, modificó o descartó, y por qué:** Se propuso la reescritura de la Conclusión con los números de la tabla final y la idea del empate.  
+- **¿El output fue técnicamente correcto? Si no, qué error tenía y cómo se detectó?** Sí en los números, que se verificaron contra la tabla. Una imprecisión: en una versión inicial la Conclusión decía "más de 0.92 en K-Fold" en Iris, pero Distancia Mínima tiene justo 0.92; se detectó al revisar el notebook completo y se cambió a "0.92 o más".
+
+## Registro 09: El ajuste de parámetros no mejoró los resultados
+- **Fecha y herramienta:** 15 de noviembre de 2026, Claude.
+- **Prompt exacto enviado:** "el ajuste de estos parametros coinciden con los resultados que se tendrian que obtener?"
+- **Resumen del output recibido:** La IA aclaró que el código no falló: los "Test default" coincidían con la tabla anterior. Lo inesperado era que el ajuste no mejoró en el sintético (SVM 0.7444 a 0.7333) y que el MLP empeoró de 0.7444 a 0.6000. Propuso como explicaciones posibles que Iris ya estaba cerca del máximo, que con etiquetas ruidosas los puntajes de las combinaciones quedan muy pegados y la mejor se elige en parte por suerte, que el MLP por defecto se detenía a las 200 iteraciones y con `max_iter=2000` se ajusta más al ruido, y que solo hay 90 datos de prueba. También sugirió una validación cruzada anidada para comparar de forma más robusta.
+- **Qué parte del output se incorporó, modificó o descartó, y por qué:** Se incorporó la interpretación para responder "¿Mejoraron los resultados?" en el reporte, redactada con "creemos" porque son hipótesis. 
+- **¿El output fue técnicamente correcto? Si no, qué error tenía y cómo se detectó?** Parcialmente. El diagnóstico de que no era un error de código es correcto, pero las causas del 0.6000 del MLP son hipótesis que no se comprobaron con otra corrida. Además, la IA dictó que el 15% de las etiquetas se cambiaba al azar, y eso es impreciso: `flip_y=0.15` asigna una clase al azar al 15% de los datos y algunas coinciden con la original, así que se cambian un poco menos. Se detectó al revisar la documentación de `make_classification`.
+
+
+## Registro 10: Error NameError: accuracy_score is not defined
+- **Fecha y herramienta:** 14 de noviembre de 2026, Claude.
+- **Prompt exacto enviado:** "¿Por qué salió NameError: accuracy_score is not defined?"
+- **Resumen del output recibido:** La IA aclaró que se había reiniciado el kernel y las celdas de arriba no estaban cargadas. Se resolvió con Run All.
+- **Qué parte del output se incorporó, modificó o descartó, y por qué:** Ninguno, solo se corrio de nuevo el notebook. 
+- **¿El output fue técnicamente correcto? Si no, qué error tenía y cómo se detectó?** Sí, corrigió un error de flujo. 
